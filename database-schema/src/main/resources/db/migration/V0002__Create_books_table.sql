@@ -1,0 +1,7 @@
+CREATE TABLE books (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(70) NOT NULL,
+    author VARCHAR(50) NOT NULL,
+    isbn VARCHAR (50) NOT NULL UNIQUE ,
+    availability_status BOOLEAN NOT NULL DEFAULT TRUE
+);

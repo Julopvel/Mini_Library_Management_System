@@ -1,0 +1,21 @@
+### Java ###
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Maven ###
+.mvn
+mvn*
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### Service ###
+log/
+*.log

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.julopvel</groupId>
+    <artifactId>mini-library-management-system</artifactId>
+    <version>0003</version>
+
+    <name>Mini Library Management System</name>
+    <description>A CLI utility for RDBMS/SQL schema development, testing, and migration.</description>
+    <url/>
+
+    <licenses>
+        <license/>
+    </licenses>
+
+    <developers>
+        <developer/>
+    </developers>
+
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+
+    <properties>
+        <java.version>21</java.version>
+        <flyway.version>11.7.2</flyway.version>
+
+        <flyway.defaultSchema>mini_library</flyway.defaultSchema>
+        <flyway.createSchemas>true</flyway.createSchemas>
+        <!--<flyway.locations>filesystem:src/*/resources/db/migration</flyway.locations>-->
+        <flyway.failOnMissingLocations>true</flyway.failOnMissingLocations>
+        <!--<flyway.placeholderReplacement>true</flyway.placeholderReplacement>-->
+        <!--<flyway.placeholderPrefix>${</flyway.placeholderPrefix>-->
+        <!--<flyway.placeholderSuffix>}</flyway.placeholderSuffix>-->
+        <!--<flyway.validateOnMigrate>true</flyway.validateOnMigrate>-->
+        <!--<flyway.validateMigrationNaming>true</flyway.validateMigrationNaming>-->
+        <!--<flyway.sqlMigrationPrefix>V</flyway.sqlMigrationPrefix>-->
+        <!--<flyway.sqlMigrationSeparator>__</flyway.sqlMigrationSeparator>-->
+        <!--<flyway.sqlMigrationSuffixes>.sql</flyway.sqlMigrationSuffixes>-->
+        <flyway.placeholders.schema>${flyway.defaultSchema}</flyway.placeholders.schema>
+    </properties>
+
+    <profiles>
+        <profile>
+            <!-- DEVELOPMENT -->
+            <id>dev</id>
+            <properties>
+                <flyway.locations>filesystem:src/*/resources/db/migration</flyway.locations>
+                <flyway.cleanDisabled>false</flyway.cleanDisabled>
+                <flyway.url>jdbc:postgresql://localhost:5432/postgres</flyway.url>
+                <flyway.user>postgres</flyway.user>
+                <flyway.password>postgres</flyway.password>
+                <flyway.installedBy>${user.name}</flyway.installedBy>
+            </properties>
+        </profile>
+        <profile>
+            <!-- PRODUCTION -->
+            <id>prod</id>
+            <properties>
+                <flyway.locations>filesystem:src/main/resources/db/migration</flyway.locations>
+                <flyway.cleanDisabled>true</flyway.cleanDisabled>
+                <!--<flyway.url>jdbc:postgresql://localhost:5432/postgres</flyway.url>-->
+                <!--<flyway.user>postgres</flyway.user>-->
+                <!--<flyway.password>postgres</flyway.password>-->
+                <!--<flyway.installedBy>${user.name}</flyway.installedBy>-->
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!--<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>-->
+
+</project>
