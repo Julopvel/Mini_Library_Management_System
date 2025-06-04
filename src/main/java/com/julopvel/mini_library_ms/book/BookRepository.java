@@ -24,13 +24,24 @@ public class BookRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public static final String FIND_LIST_BOOKS = "SELECT id, title, author, isbn, availability_status FROM books";
+    private static final RowMapper<BookDTO> ROW_MAPPER = (rs, rowNum) -> {
+        BookDTO bookDTO = new BookDTO(
+                rs.getInt("id"),
+                rs.getString("title"),
+                rs.getString("author"),
+                rs.getString("isbn"),
+                rs.getBoolean("availability_status"));
+        return bookDTO;
+    };
 
-    public ResponseEntity<List<Book>> getListBooks() {
+//TODO this will be pageable in the future
+    private static final String FIND_LIST_BOOKS =
+            "SELECT id, title, author, isbn, availability_status FROM books";
+
+    public List<BookDTO> getListBooks() {
         try {
-            List<Book> listBooks = jdbcTemplate.query(FIND_LIST_BOOKS, ROW_MAPPER);
-            //return (ResponseEntity<List<Book>>) jdbcTemplate.query(FIND_LIST_BOOKS, ROW_MAPPER).stream().toList();
-            return new ResponseEntity<>(listBooks, HttpStatus.OK);
+            List<BookDTO> listBooks = jdbcTemplate.query(FIND_LIST_BOOKS, ROW_MAPPER);
+            return listBooks;
         } catch (DataAccessException e) {
             String error = "Error getting list of books";
             LOGGER.error(error, e);
@@ -38,45 +49,93 @@ public class BookRepository {
         }
     }
 
-    public static final String NEW_BOOK = "INSERT INTO books (title, author, isbn) VALUES (?, ?, ?)";
+    private static final String FIND_MANY =
+            "SELECT id, title, author, isbn, availability_status FROM books ORDER BY id DESC LIMIT ?";
 
-    public ResponseEntity<Book> newBook(Book book) {
+    public List<BookDTO> findMany(int page, int pageSize) {
+        LOGGER.debug("findMany() called with page={}, pageSize={}", page, pageSize);
         try {
-//            int rowsAffected = jdbcTemplate.update(
-//                    NEW_BOOK,
-//                    book.author(),
-//                    book.title(),
-//                    book.isbn()
-//                    //book.availabilityStatus()
-            jdbcTemplate.update(
+            int offset = (page - 1) * pageSize;
+            return jdbcTemplate.query(FIND_MANY, ROW_MAPPER, pageSize, offset);
+        } catch (DataAccessException e) {
+            String error = "Cannot find users";
+            LOGGER.error(error, e);
+            throw new RuntimeException(error, e);
+        }
+
+    }
+
+    private static final String NEW_BOOK =
+            "INSERT INTO books (title, author, isbn) VALUES (?, ?, ?)";
+
+/*TODO
+*  display values in insomnia, including id and availabilityStatus*/
+    public Boolean save(Book book) {
+        try {
+           int rowsAffected = jdbcTemplate.update(
                     NEW_BOOK,
-                    book.author(),
-                    book.title(),
-                    book.isbn()
+                    book.getAuthor(),
+                    book.getTitle(),
+                    book.getIsbn()
             );
-//            if (rowsAffected > 0) {
-//                return new ResponseEntity<>(book, HttpStatus.CREATED);
-//            }
-//            else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+           return rowsAffected > 0;
         } catch (DataAccessException e) {
             String error = "Error creating new book";
             LOGGER.error(error, e);
             throw new RuntimeException(error, e);
         }
-        return null;
+    }
+/*TODO
+*  handle null values, display the json within insomnia*/
+    private static final String UPDATE =
+            "UPDATE books SET title = ?, author = ?, isbn = ?, availability_status = ? WHERE id = ?";
+
+    public Boolean update(Book book) {
+        try {
+            int rowsAffected = jdbcTemplate.update(
+                    UPDATE,
+                    book.getTitle(),
+                    book.getAuthor(),
+                    book.getIsbn(),
+                    book.getAvailabilityStatus(),
+                    book.getId()
+            );
+            return rowsAffected > 0;
+        } catch (DataAccessException e) {
+            String error = "Error updating book with id: " + book.getId();
+            LOGGER.error(error, e);
+            throw new RuntimeException(error, e);
+        }
     }
 
+    private static final String DELETE_BY_ID = "DELETE FROM books WHERE id = ?";
 
+    public Boolean deleteById(Long id) {
+        LOGGER.info("Deleting book with id: {}", id);
+        try {
+            int rowsAffected = jdbcTemplate.update(DELETE_BY_ID, id);
+            return rowsAffected > 0;
+        } catch (DataAccessException e) {
+            String error = "Error deleting book with id: " + id;
+            LOGGER.error(error, e);
+            throw new RuntimeException(error, e);
+        }
+    }
 
+    private static final String COUNT_BY_TITLE =
+            "SELECT COUNT(*) FROM books WHERE title = ?";
 
-    private static final RowMapper<Book> ROW_MAPPER = (rs, rowNum) -> {
-        Book book = new Book(
-                rs.getInt("id"),
-                rs.getString("title"),
-                rs.getString("author"),
-                rs.getString("isbn"),
-                rs.getBoolean("availability_status"));
-                return book;
-    };
+    public Boolean existsByTitle(String title) {
+        LOGGER.debug("existsByTitle() called with: title={}", title);
+        try {
+            int rowsAffected = jdbcTemplate.queryForObject(COUNT_BY_TITLE, Integer.class);
+            LOGGER.debug("rowsAffected: {}",rowsAffected);
+            return rowsAffected > 0;
+        } catch (DataAccessException e) {
+            String error = "Error checking if title exists";
+            LOGGER.error(error, e);
+            throw new RuntimeException(error, e);
+        }
+    }
 
 }
