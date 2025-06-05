@@ -4,6 +4,8 @@ import com.julopvel.mini_library_ms.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 public class BookDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BookDTO.class);
@@ -75,6 +77,23 @@ public class BookDTO {
         book.setAvailabilityStatus(availabilityStatus);
         LOGGER.debug("Book: {} mapped to BookData: {}", this, book);
         return book;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookDTO bookDTO = (BookDTO) o;
+        return Objects.equals(id, bookDTO.id) &&
+                Objects.equals(title, bookDTO.title) &&
+                Objects.equals(author, bookDTO.author) &&
+                Objects.equals(isbn, bookDTO.isbn) &&
+                Objects.equals(availabilityStatus, bookDTO.availabilityStatus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author, isbn, availabilityStatus);
     }
 
     @Override
